@@ -1,36 +1,85 @@
-
-
-import './App.css'
-import { appContainer, board, buttons } from './App.css'
-import BoardList from './components/BoardList/BoardList'
-import { useState } from 'react'
-import ListsContainer from './components/ListContainer/ListsContainer';
-import { useTypedSelector } from './hooks/redux';
+import "./App.css";
+import {
+  appContainer,
+  board,
+  buttons,
+  deleteBoardButton,
+  loggerButton,
+} from "./App.css";
+import BoardList from "./components/BoardList/BoardList";
+import { useState } from "react";
+import ListsContainer from "./components/ListContainer/ListsContainer";
+import { useTypedDispatch, useTypedSelector } from "./hooks/redux";
+import EditModal from "./components/EditModal/EditModal";
+import LoggerModal from "./components/LoggerModal/LoggerModal";
+import { deleteBoard } from "./store/slices/boardSlice";
+import { addLog } from "./store/slices/loggerSlice";
+import { v4 } from "uuid";
 
 function App() {
-  const [ActiveBoardId, setActiveBoard] = useState('board-0');
-  const boards = useTypedSelector(state => state.boards.boardArray);
+  const [isLoggerOpen, setIsLoggerOpen] = useState(false);
+  const [ActiveBoardId, setActiveBoardId] = useState("board-0");
+  const modalActive = useTypedSelector((state) => state.boards.modalActive);
+  const boards = useTypedSelector((state) => state.boards.boardArray);
+  const dispatch = useTypedDispatch();
+  const handleDeleteBoard = () => {
+    if (boards.length > 1) {
+      dispatch(deleteBoard({ boardId: getActiveBoard.boardId }));
+      dispatch(
+        addLog({
+          logId: v4(),
+          logMessage: `게시판 지우기: ${getActiveBoard.boardName}`,
+          logAuthor: "User",
+          logTimeStamp: String(Date.now()),
+        })
+      );
+      const newIndexToSet = () => {
+        const indexToBeDeleted = boards.findIndex(
+          (board) => board.boardId === ActiveBoardId
+        );
+        return indexToBeDeleted === 0
+          ? indexToBeDeleted + 1
+          : indexToBeDeleted - 1;
+      };
+      setActiveBoardId(boards[newIndexToSet()].boardId);
+    } else {
+      alert("최소 게시판 갯수는 한개 입니다.");
+    }
+  };
 
-  const getActiveBoard = boards.filter(board=>board.boardId===ActiveBoardId)[0];
+  const getActiveBoard = boards.filter(
+    (board) => board.boardId === ActiveBoardId
+  )[0];
 
   const lists = getActiveBoard.lists;
 
   return (
     <div className={appContainer}>
-      <BoardList activeBoardId={ActiveBoardId} setActiveBoardId={setActiveBoard}/>
+      {isLoggerOpen ? <LoggerModal setIsLoggerOpen={setIsLoggerOpen} /> : null}
+      {modalActive ? <EditModal /> : null}
+      <BoardList
+        activeBoardId={ActiveBoardId}
+        setActiveBoardId={setActiveBoardId}
+      />
       <div className={board}>
-        <ListsContainer lists = {lists} boardId={getActiveBoard.boardId}></ListsContainer>
+        <ListsContainer
+          lists={lists}
+          boardId={getActiveBoard.boardId}
+        ></ListsContainer>
       </div>
       <div className={buttons}>
-        <button>
+        <button className={deleteBoardButton} onClick={handleDeleteBoard}>
           이 게시판 삭제하기
         </button>
-        <button>
-
+        <button
+          className={loggerButton}
+          onClick={() => setIsLoggerOpen(!isLoggerOpen)}
+        >
+          {isLoggerOpen ? "활동 목록 숨기기" : "활동 목록 보이기"}
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
