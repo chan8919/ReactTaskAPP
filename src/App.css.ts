@@ -3,7 +3,7 @@ import { createGlobalTheme, style } from "@vanilla-extract/css";
 export const vars = createGlobalTheme(":root ", {
   color: {
     main: "#ffa726",
-    mainDarker: "#57c00",
+    mainDarker: "#e57c00",
     mainFaded: "#ffb74d",
     mainFadeBright: "#ffb74da6",
     list: "rgb(235,236,240)",
@@ -23,6 +23,7 @@ export const vars = createGlobalTheme(":root ", {
     T3: "18px",
     T4: "14px",
     T5: "12px",
+    P1: "12px",
   },
   spacing: {
     small: "5px",
@@ -44,7 +45,7 @@ export const vars = createGlobalTheme(":root ", {
 
 export const appContainer = style({
   display: "flex",
-  flexDirection: "row",
+  flexDirection: "column",
   minHeight: "100vh",
   height: "max-content",
   width: "100vw",
